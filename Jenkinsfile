@@ -1,20 +1,18 @@
 pipeline {
     agent any
-    
     stages {
-        stage('A1: Check Ansible Files') {
+        stage('A1: Verify Layout') {
             steps {
-                echo "Scanning playbooks and inventory configurations for Image 1..."
+                echo "Locating submodule structure..."
+                sh 'ls -la ansible/' // Verifies the folder is populated
             }
         }
-        stage('A2: Build VM Compute Image') {
+        stage('A2: Run Submodule Playbook') {
             steps {
-                echo "Baking VM Compute Image 1 from template files..."
-            }
-        }
-        stage('A3: Deploy to MIG A') {
-            steps {
-                echo "Triggering rolling update for Managed Instance Group A..."
+                dir('ansible') {
+                    // Executes the playbook directly out of the submodule folder context
+                    sh 'ansible-playbook playbook.yml'
+                }
             }
         }
     }
