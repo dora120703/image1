@@ -1,21 +1,32 @@
 pipeline {
-    // Force the child stages to run directly in the parent node's workspace
+    // 1. Force the root pipeline template to run without assigning a new directory
     agent none 
     
     stages {
         stage('A1: Verify Layout') {
-            agent any // Inherits the existing node, but forces compliance
+            agent {
+                node {
+                    // 2. Reuse the parent workspace explicitly to avoid getting tossed into @2
+                    label 'built-in' // Use 'master' if you are on an older Jenkins version
+                    customWorkspace "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\poc1"
+                }
+            }
             steps {
                 echo "Locating submodule structure..."
-                // Changed from 'sh ls' to Windows native 'bat dir'
+                // Now this runs directly inside the primary 'poc1' folder where submodules exist
                 bat 'dir ansible' 
             }
         }
+        
         stage('A2: Run Submodule Playbook') {
-            agent any
+            agent {
+                node {
+                    label 'built-in'
+                    customWorkspace "C:\\ProgramData\\Jenkins\\.jenkins\\workspace\\poc1"
+                }
+            }
             steps {
                 dir('ansible') {
-                    // Changed from 'sh' to 'bat'
                     bat 'echo Executing playbook block on Windows agent...'
                 }
             }
