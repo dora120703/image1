@@ -1,26 +1,21 @@
-def runPipeline() {
-    // 1. Prompt for extra parameters ONLY when Pipeline A runs
-    def extraParams = input(
-        id: 'PipelineAInputs',
-        message: 'Pipeline A Configurations',
-        parameters: [
-            string(name: 'IMAGE_NAME', defaultValue: 'my-compute-image', description: 'Name of the VM Image'),
-            choice(name: 'REGION', choices: ['us-central1', 'us-east1', 'europe-west1'], description: 'Target Cloud Region')
-        ]
-    )
-
-    // 2. Access the extra inputs using the variable mapping
-    stage('A1: Verify Manifests') {
-        echo "Targeting Region: ${extraParams.REGION}"
-        echo "Image name set to: ${extraParams.IMAGE_NAME}"
-    }
+pipeline {
+    agent any
     
-    stage('A2: Bake Compute Image') {
-        echo "Building VM Golden Image (${extraParams.IMAGE_NAME}-vA-${BUILD_NUMBER})..."
-    }
-    
-    stage('A3: Rollout MIG A') {
-        echo "Updating Managed Instance Group in ${extraParams.REGION}..."
+    stages {
+        stage('A1: Check Ansible Files') {
+            steps {
+                echo "Scanning playbooks and inventory configurations for Image 1..."
+            }
+        }
+        stage('A2: Build VM Compute Image') {
+            steps {
+                echo "Baking VM Compute Image 1 from template files..."
+            }
+        }
+        stage('A3: Deploy to MIG A') {
+            steps {
+                echo "Triggering rolling update for Managed Instance Group A..."
+            }
+        }
     }
 }
-return this
