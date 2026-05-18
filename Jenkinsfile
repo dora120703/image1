@@ -1,13 +1,26 @@
 def runPipeline() {
-    // These stages will dynamically populate the Stage View UI
+    // 1. Prompt for extra parameters ONLY when Pipeline A runs
+    def extraParams = input(
+        id: 'PipelineAInputs',
+        message: 'Pipeline A Configurations',
+        parameters: [
+            string(name: 'IMAGE_NAME', defaultValue: 'my-compute-image', description: 'Name of the VM Image'),
+            choice(name: 'REGION', choices: ['us-central1', 'us-east1', 'europe-west1'], description: 'Target Cloud Region')
+        ]
+    )
+
+    // 2. Access the extra inputs using the variable mapping
     stage('A1: Verify Manifests') {
-        echo "Checking Packer configuration files for App A..."
+        echo "Targeting Region: ${extraParams.REGION}"
+        echo "Image name set to: ${extraParams.IMAGE_NAME}"
     }
+    
     stage('A2: Bake Compute Image') {
-        echo "Building VM Golden Image (vA-${BUILD_NUMBER}) in Cloud provider..."
+        echo "Building VM Golden Image (${extraParams.IMAGE_NAME}-vA-${BUILD_NUMBER})..."
     }
+    
     stage('A3: Rollout MIG A') {
-        echo "Updating Managed Instance Group A to use image vA-${BUILD_NUMBER}..."
+        echo "Updating Managed Instance Group in ${extraParams.REGION}..."
     }
 }
 return this
