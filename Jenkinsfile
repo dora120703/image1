@@ -1,6 +1,6 @@
 pipeline {
-    // Mimic your production worker node designation
-    agent { label 'built-in' } // Change this to match your available Windows agent label if needed
+    // 1. Tell the root declarative pipeline not to allocate an automatic node
+    agent none 
     
     environment {
         ZONE = 'europe-west2-a'
@@ -12,11 +12,10 @@ pipeline {
     }
     
     stages {
-        // Runs out of the main repository structure
         stage('Cleanup') {
+            // FIX: Removed 'agent any' from here so it stays inside 'poc2'
             steps {
                 catchError {
-                    // FIX: Wrapped in dir('ansible') to avoid forward slash compilation errors on Windows
                     dir('ansible') {
                         bat 'cleanup_images.bat'
                     }
@@ -24,8 +23,8 @@ pipeline {
             }
         }
         
-        // Simulates running an automated playbook from your nested submodules
         stage('Apply Ansible config') {
+            // FIX: Removed 'agent any' from here
             steps {
                 dir('ansible') {
                     bat 'echo Executing playbooks out of the synced submodule directory...'
@@ -34,8 +33,8 @@ pipeline {
         }
         
         stage('Create Image') {
+            // FIX: Removed 'agent any' from here
             steps {
-                // FIX: Navigates inside the checked-out folder natively before executing the batch script
                 dir('ansible') {
                     bat 'create_image.bat'
                 }
