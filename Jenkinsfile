@@ -1,10 +1,13 @@
 pipeline {
-    // 1. You can now use your specific production build agent worker nodes natively!
+    // Targets your specific Linux worker node natively
     agent { label 'built-in' } 
     
     environment {
         ZONE = 'europe-west2-a'
-        IMAGE_NAME = "poc-app1-image-${BUILD_NUMBER}"
+        SUBNETWORK = 'projects/hsbc-6320774-vpchost-au-dev/regions/europe-west2/subnetworks/cinternal-vpc1-europe-west2'
+        CMEK = 'projects/hsbc-6320774-kms-dev/locations/europe-west2/keyRings/computeEngine/cryptoKeys/computeEngine'
+        // This relies on the job name to build the real image resource name
+        IMAGE_NAME = "${JOB_BASE_NAME}-v1-${BUILD_NUMBER}"
     }
     
     options {
@@ -12,28 +15,17 @@ pipeline {
     }
     
     stages {
-        stage('Cleanup') {
+        stage('A1: Resource Check') {
+            steps {
+                echo "Evaluating active environment context variables..."
+                echo "Target Resource Name resolved to: ${IMAGE_NAME}"
+            }
+        }
+        stage('A2: Run Cleanup Script') {
             steps {
                 catchError {
-                    dir('ansible') {
-                        bat 'cleanup_images.bat'
-                    }
-                }
-            }
-        }
-        
-        stage('Apply Ansible config') {
-            steps {
-                dir('ansible') {
-                    bat 'echo Executing playbooks out of the synced submodule directory...'
-                }
-            }
-        }
-        
-        stage('Create Image') {
-            steps {
-                dir('ansible') {
-                    bat 'create_image.bat'
+                    // Simulates executing the script out of the checked-out submodule
+                    sh 'echo "Running: sh ci/cleanup_images.sh for target resource ${IMAGE_NAME}"'
                 }
             }
         }
