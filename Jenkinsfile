@@ -16,7 +16,7 @@ pipeline {
         stage('Cleanup') {
             steps {
                 catchError {
-                    bat 'ci/cleanup_images.bat'
+                    bat 'ansible/cleanup_images.bat'
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
         
         stage('Create Image') {
             steps {
-                bat 'ci/create_image.bat'
+                bat 'ansible/create_image.bat'
             }
         }
     }
