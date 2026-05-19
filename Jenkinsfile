@@ -1,6 +1,6 @@
 pipeline {
-    // 1. Tell the root declarative pipeline not to allocate an automatic node
-    agent none 
+    // 1. You can now use your specific production build agent worker nodes natively!
+    agent { label 'built-in' } 
     
     environment {
         ZONE = 'europe-west2-a'
@@ -13,7 +13,6 @@ pipeline {
     
     stages {
         stage('Cleanup') {
-            // FIX: Removed 'agent any' from here so it stays inside 'poc2'
             steps {
                 catchError {
                     dir('ansible') {
@@ -24,7 +23,6 @@ pipeline {
         }
         
         stage('Apply Ansible config') {
-            // FIX: Removed 'agent any' from here
             steps {
                 dir('ansible') {
                     bat 'echo Executing playbooks out of the synced submodule directory...'
@@ -33,7 +31,6 @@ pipeline {
         }
         
         stage('Create Image') {
-            // FIX: Removed 'agent any' from here
             steps {
                 dir('ansible') {
                     bat 'create_image.bat'
