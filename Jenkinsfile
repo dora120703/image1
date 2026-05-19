@@ -16,7 +16,10 @@ pipeline {
         stage('Cleanup') {
             steps {
                 catchError {
-                    bat 'ansible/cleanup_images.bat'
+                    // FIX: Wrapped in dir('ansible') to avoid forward slash compilation errors on Windows
+                    dir('ansible') {
+                        bat 'cleanup_images.bat'
+                    }
                 }
             }
         }
@@ -32,7 +35,10 @@ pipeline {
         
         stage('Create Image') {
             steps {
-                bat 'ansible/create_image.bat'
+                // FIX: Navigates inside the checked-out folder natively before executing the batch script
+                dir('ansible') {
+                    bat 'create_image.bat'
+                }
             }
         }
     }
