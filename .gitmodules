@@ -4,3 +4,6 @@
 [submodule "ansible"]
 	path = ansible
 	url = https://github.com/dora120703/ansible_image1.git
+[submodule "ci"]
+	path = ci
+	url = https://github.com/dora120703/ansible_image1.git
