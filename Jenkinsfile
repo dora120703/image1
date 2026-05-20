@@ -1,9 +1,9 @@
 pipeline {
-    agent { label 'built-in' } 
+    agent { label 'built-in' }
     
     environment {
         ZONE = 'europe-west2-a'
-        IMAGE_NAME = "${JOB_BASE_NAME}-v1-${BUILD_NUMBER}"
+        IMAGE_NAME = "${JOB_BASE_NAME}"
     }
     
     options {
@@ -11,17 +11,31 @@ pipeline {
     }
     
     stages {
-        stage('A1: Pipeline A Start') {
+        stage('Cleanup') {
             steps {
-                echo "Evaluating context for Pipeline A (No extra parameters needed)..."
-                echo "Target Resource Name: ${IMAGE_NAME}"
+                catchError {
+                    sh 'ci/cleanup_images.sh'
+                }
             }
         }
-        stage('A2: Run Cleanup Script') {
+        stage('Create Stage3 Instance') {
             steps {
-                dir('ci') {
-                    bat 'cleanup_images.bat'
-                }
+                sh 'ci/create_stage3_instance.sh'
+            }
+        }
+        stage('Apply Ansible config') {
+            steps {
+                sh 'ci/apply_ansible_config.sh'
+            }
+        }
+        stage('Create Image') {
+            steps {
+                sh 'ci/create_image.sh'
+            }
+        }
+        stage('Assign instance family') {
+            steps {
+                sh 'ci/assign_instance_family.sh'
             }
         }
     }
