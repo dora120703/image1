@@ -3,8 +3,6 @@ pipeline {
     
     environment {
         ZONE = 'europe-west2-a'
-        SUBNETWORK = 'projects/hsbc-6320774-vpchost-au-dev/regions/europe-west2/subnetworks/cinternal-vpc1-europe-west2'
-        CMEK = 'projects/hsbc-6320774-kms-dev/locations/europe-west2/keyRings/computeEngine/cryptoKeys/computeEngine'
         IMAGE_NAME = "${JOB_BASE_NAME}-v1-${BUILD_NUMBER}"
     }
     
